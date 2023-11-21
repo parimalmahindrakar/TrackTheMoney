@@ -9,6 +9,8 @@ class BaseConfig:
     MONGO_DATABASE_URI = environ.get(
         'MONGO_DATABASE_URI', 'mongodb://localhost:27017/')
     MONGO_DATABASE = environ.get('MONGO_DATABASE', 'trackthemoney')
+    JWT_SECRET_KEY = environ.get(
+        'JWT_SECRET_KEY', 'TgZdibSpYRkUrXl7')
 
 
 class DevelopmentConfig(BaseConfig):

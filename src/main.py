@@ -2,6 +2,8 @@
 from flask import Flask
 from os import environ
 from config import config
+from blueprints.users import user_bp
+from blueprints.auth import auth_bp
 import extensions
 
 # set env
@@ -11,6 +13,13 @@ def create_app(config_name):
     # Flask app object
     app = Flask(__name__)
     app.config.from_object(config[config_name])
+
+    # initialize the app with the extensions if required
+    extensions.jwt.init_app(app)
+
+    # register blueprints
+    app.register_blueprint(user_bp, url_prefix='/users')
+    app.register_blueprint(auth_bp, url_prefix='/auth')
 
     return app
 
