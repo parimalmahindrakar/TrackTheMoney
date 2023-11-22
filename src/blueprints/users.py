@@ -1,7 +1,10 @@
 from flask import Blueprint, jsonify, request
 from models.users.user import User
-from flask_jwt_extended import jwt_required, current_user
+from flask_jwt_extended import (jwt_required,
+                                current_user,
+                                get_jwt)
 from models.users.user_schema import UserSchema
+from blocklist import BLOCKLIST
 
 user_bp = Blueprint('user_bp', __name__)
 
@@ -33,3 +36,11 @@ def get_all_users():
         return jsonify({
             'message': 'You dont have an access for this'
         }), 403
+
+@user_bp.route('/logout')
+@jwt_required()
+def logout():
+    BLOCKLIST.add(get_jwt()['jti'])
+    return jsonify({
+        'message': 'Successfully logged out'
+    }), 200
