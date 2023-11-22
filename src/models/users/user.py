@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, EmailField, DateTimeField
+from mongoengine import Document, StringField, EmailField, DateTimeField, BooleanField
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -6,6 +6,7 @@ class User(Document):
     username = StringField(required=True)
     email = EmailField(required=True)
     password = StringField(required=True)
+    is_admin = BooleanField(default=False)
     created_at = DateTimeField(default=datetime.utcnow)
     udpated_at = DateTimeField(default=datetime.utcnow)
 

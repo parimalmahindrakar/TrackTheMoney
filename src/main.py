@@ -1,9 +1,10 @@
 # Import the libraries
-from flask import Flask
+from flask import Flask, jsonify
 from os import environ
 from config import config
 from blueprints.users import user_bp
 from blueprints.auth import auth_bp
+from models.users.user import User
 import extensions
 
 # set env
@@ -20,6 +21,33 @@ def create_app(config_name):
     # register blueprints
     app.register_blueprint(user_bp, url_prefix='/users')
     app.register_blueprint(auth_bp, url_prefix='/auth')
+
+    # load user from jwt token
+    @extensions.jwt.user_lookup_loader
+    def user_lookup_callback(__jwt_headers, jwt_data):
+        return User.objects(id=jwt_data.get('sub')).first()
+
+    # jwt error handlers
+    @extensions.jwt.expired_token_loader
+    def expire_token_callback(jwt_header, jwt_data):
+        return jsonify({
+            'message': 'Token has expired',
+            'error': 'token_expired'
+        }), 401
+
+    @extensions.jwt.invalid_token_loader
+    def invalid_token_callback(error):
+        return jsonify({
+            'message': 'Signature verfication failed',
+            'error': 'invalid_token'
+        }), 401
+
+    @extensions.jwt.unauthorized_loader
+    def missing_token_callback(error):
+        return jsonify({
+            'message': 'Request does not contain valid token',
+            'error': 'authorization_header'
+        }), 401
 
     return app
 
