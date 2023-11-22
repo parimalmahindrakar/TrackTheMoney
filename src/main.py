@@ -5,6 +5,7 @@ from config import config
 from blueprints.users import user_bp
 from blueprints.auth import auth_bp
 from models.users.user import User
+from blocklist import BLOCKLIST
 import extensions
 
 # set env
@@ -47,6 +48,18 @@ def create_app(config_name):
         return jsonify({
             'message': 'Request does not contain valid token',
             'error': 'authorization_header'
+        }), 401
+
+    # jwt blocklist for tokens
+    @extensions.jwt.token_in_blocklist_loader
+    def check_if_token_in_blocklist(jwt_header, jwt_payload):
+        return jwt_payload.get('jti') in BLOCKLIST
+
+    @extensions.jwt.revoked_token_loader
+    def revoked_token_callback(jwt_header, jwt_payload):
+        return jsonify({
+            'message': 'This token has been revoked',
+            'error': 'token_revoked'
         }), 401
 
     return app
