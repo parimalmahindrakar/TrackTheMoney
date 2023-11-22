@@ -8,10 +8,24 @@ user_bp = Blueprint('user_bp', __name__)
 @user_bp.get('/all')
 @jwt_required()
 def get_all_users():
-  users = User.objects()
-  result = UserSchema().dump(users, many=True)
+    # TODO: validate per_page and page, request arguments
 
-  return jsonify({
-    'users': result
-  }), 200
+    page = request.args.get('page', type=int)
+    per_page = request.args.get('per_page', type=int)
+    users = User.objects
 
+    if page and per_page:
+        selected_users = users.skip((page - 1) * per_page).limit(per_page)
+        result = UserSchema().dump(selected_users, many=True)
+
+        return jsonify({
+          'users': result
+        }), 200
+
+    else:
+        result = UserSchema().dump(users, many=True)
+
+        return jsonify({
+          'users': result,
+          'users_count': users.count()
+        }), 200
