@@ -1,5 +1,4 @@
 from mongoengine import Document, StringField, LazyReferenceField, FloatField, DENY
-from models.users.user import User
 
 class Bank(Document):
     name                    = StringField(required=True)
