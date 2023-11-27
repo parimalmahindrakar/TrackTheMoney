@@ -11,4 +11,3 @@ class Bank(Document):
 
     def get_user(self):
         return self.user.fetch()
-
